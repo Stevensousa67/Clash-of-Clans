@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ui/Theme";
 import { Analytics } from "@vercel/analytics/next"
+import Navbar from "@/components/header/Navbar";
+import Footer from "@/components/footer/Footer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,9 +24,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gradient-to-b from-white via-white via-60% to-gray-300 dark:bg-gradient-to-b dark:from-black dark:via-black dark:via-60% dark:to-gray-800`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Navbar />
+          <main className="flex-grow flex flex-col max-w-5xl w-full" style={{ position: 'relative', left: '50vw', transform: 'translateX(-50%)' }}>
+            {children}
+          </main>
+          <Footer />
         </ThemeProvider>
         <Analytics />
       </body>
