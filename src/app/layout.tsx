@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ui/Theme";
 import { Analytics } from "@vercel/analytics/next"
+import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/header/Navbar";
 import Footer from "@/components/footer/Footer";
 import "./globals.css";
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             {children}
           </main>
           <Footer />
+          <Toaster />
         </ThemeProvider>
         <Analytics />
       </body>
