@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ContactEmail } from '@/components/sections/contact/Email';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
+const RESEND_TO_EMAIL = process.env.RESEND_TO_EMAIL || '';
+const PROJECT_NAME = process.env.PROJECT_NAME || '';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,9 +23,9 @@ export async function POST(request: NextRequest) {
 
     // Send email using Resend with React component
     const { data, error } = await resend.emails.send({
-      from: 'ss@stevensousa.com',
-      to: 'silver.steven@hotmail.com',
-      subject: `Project Clash of Clans Message From ${name}`,
+      from: RESEND_FROM_EMAIL,
+      to: RESEND_TO_EMAIL,
+      subject: `Project ${PROJECT_NAME} Message From ${name}`,
       react: ContactEmail({ name, email, message }),
       replyTo: email,
     });
