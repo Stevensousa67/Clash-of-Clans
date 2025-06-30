@@ -1,5 +1,6 @@
 // Popup.tsx
 import { CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
+import { useEffect, useState } from "react";
 
 interface PopupProps {
   isOpen: boolean;
@@ -10,13 +11,29 @@ interface PopupProps {
 }
 
 export function Popup({ isOpen, type, requirements, isMatch, className }: PopupProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768); // Adjust threshold as needed
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   if (!isOpen || (type === "match" && isMatch === null)) return null;
 
   return (
     <div
-      className={`absolute left-full ml-4 bg-card p-3 rounded-lg shadow-lg z-10 ${
-        type === "requirements" ? "w-72 p-4 -translate-y-1/2" : "whitespace-nowrap"
-      } ${className}`}
+      className={`
+        ${isMobile ? "relative w-full mt-2" : "absolute left-full ml-4"}
+        bg-card p-3 rounded-lg shadow-lg z-20
+        ${type === "requirements" && !isMobile ? "w-72 p-4 -translate-y-1/2" : "w-full"}
+        ${type === "match" && !isMobile ? "whitespace-nowrap" : ""}
+        ${className}
+      `}
+      role="alert"
+      aria-live="polite"
     >
       {type === "requirements" && requirements ? (
         <>
@@ -36,7 +53,9 @@ export function Popup({ isOpen, type, requirements, isMatch, className }: PopupP
           <span>{isMatch ? "Passwords match" : "Passwords do not match"}</span>
         </div>
       )}
-      <div className="absolute top-1/2 -left-2 w-4 h-4 bg-card transform -translate-y-1/2 rotate-45" />
+      {!isMobile && (
+        <div className="absolute top-1/2 -left-2 w-4 h-4 bg-card transform -translate-y-1/2 rotate-45" />
+      )}
     </div>
   );
 }
