@@ -10,31 +10,31 @@ const baseUrl  = `${process.env.NEXT_PUBLIC_AWS_S3_BASE_URL}svgs/`;
 export const socialMedia: socialMedia[] = [
     {
         name: "GitHub",
-        url: "https://www.github.com/Stevensousa67",
+        url: `${process.env.GitHub_URL}`,
         icon: `${baseUrl}github.svg`,
         isBlack: true,
     },
     {
         name: "LinkedIn",
-        url: "https://www.linkedin.com/in/stevenssousa/",
+        url: `${process.env.LinkedIn_URL}`,
         icon: `${baseUrl}linkedin.svg`,
         isBlack: true,
     },
     {
         name: "Personal Website",
-        url: "https://www.stevensousa.com",
+        url: `${process.env.Personal_Website_URL}`,
         icon: `${baseUrl}earth.svg`,
         isBlack: true,
     },
     {
         name: "Discord",
-        url: "https://discord.com/users/359507591447183361",
+        url: `${process.env.Discord_Profile}`,
         icon: `${baseUrl}discord.svg`,
         isBlack: true,
     },
     {
         name: "Youtube",
-        url: "https://www.youtube.com/@shadelessghost",
+        url: `${process.env.Youtube_URL}`,
         icon: `${baseUrl}youtube.svg`,
         isBlack: true,
     }
