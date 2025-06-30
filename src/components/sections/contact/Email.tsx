@@ -6,7 +6,7 @@ interface ContactEmailProps {
   message: string;
 }
 
-const projectName = process.env.Email_Project_Name ?? 'Clash of Clans';
+const projectName = process.env.Project_Name ?? 'Clash of Clans';
 
 export const ContactEmail = ({ name, email, message }: ContactEmailProps) => (
   <Html>
