@@ -19,6 +19,8 @@ interface AuthFormProps extends React.ComponentProps<"div"> {
 }
 
 export function AuthForm({ className, formType, title, subtitle, submitButtonText, linkText, linkUrl, showForgotPassword = false, ...props }: AuthFormProps) {
+  const wallpaper = `${baseUrl}wallpapers/CoC+Logo.jpeg`;
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
@@ -82,7 +84,7 @@ export function AuthForm({ className, formType, title, subtitle, submitButtonTex
           </form>
           <div className="bg-muted relative hidden md:block">
             <Link href="/">
-              <Image src={`${baseUrl}wallpapers/CoC+Logo.jpeg`} alt="Login Image" width={500} height={500} className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
+              <Image src={wallpaper} alt="Wallpaper Image" width={500} height={500} className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
             </Link>
           </div>
         </CardContent>
