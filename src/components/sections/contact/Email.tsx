@@ -6,14 +6,16 @@ interface ContactEmailProps {
   message: string;
 }
 
+const projectName = process.env.Email_Project_Name ?? 'Clash of Clans';
+
 export const ContactEmail = ({ name, email, message }: ContactEmailProps) => (
   <Html>
     <Head />
     <Body style={main}>
-      <Preview>{name} sent you a message from Project Clash of Clans</Preview>
+      <Preview>{name} sent you a message from Project {projectName}</Preview>
       <Container style={container}>
-        <Heading style={h1}>New Clash of Clans Project Message</Heading>
-        <Text style={text}>You&apos;ve received a new message from Project Clash of Clans: </Text>
+        <Heading style={h1}>New {projectName} Project Message</Heading>
+        <Text style={text}>You&apos;ve received a new message from Project {projectName}: </Text>
 
         <div style={contactCard}>
           <Text style={contactHeader}>Contact Details</Text>
@@ -37,7 +39,7 @@ export const ContactEmail = ({ name, email, message }: ContactEmailProps) => (
         </Text>
 
         <Text style={footer}>
-          This message was sent from your Project Clash of Clans contact form.
+          This message was sent from your {projectName} Project contact form.
           <br />
           Keep building amazing things! 🚀
         </Text>
