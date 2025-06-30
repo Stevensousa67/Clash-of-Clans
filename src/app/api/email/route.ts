@@ -5,7 +5,7 @@ import { ContactEmail } from '@/components/sections/contact/Email';
 const resend = new Resend(process.env.RESEND_API_KEY);
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
 const RESEND_TO_EMAIL = process.env.RESEND_TO_EMAIL || '';
-const PROJECT_NAME = process.env.PROJECT_NAME || '';
+const RESEND_SUBJECT = process.env.RESEND_SUBJECT || 'New Contact Form Submission';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await resend.emails.send({
       from: RESEND_FROM_EMAIL,
       to: RESEND_TO_EMAIL,
-      subject: `Project ${PROJECT_NAME} Message From ${name}`,
+      subject: `${RESEND_SUBJECT} ${name}`,
       react: ContactEmail({ name, email, message }),
       replyTo: email,
     });
