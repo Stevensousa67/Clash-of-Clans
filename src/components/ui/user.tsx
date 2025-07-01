@@ -2,7 +2,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { auth } from "@/app/api/firebase/config"
-import { CircleUserRound } from "lucide-react"
+import { UserRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useCurrentUser } from "@/components/auth/hooks/useCurrentUser"
@@ -14,7 +14,7 @@ export function ProfileToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          <CircleUserRound className="h-[1.2rem] w-[1.2rem]" />
+          <UserRound className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">User Profile</span>
         </Button>
       </DropdownMenuTrigger>
