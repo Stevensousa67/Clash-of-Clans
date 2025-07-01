@@ -1,4 +1,3 @@
-// useAuth.ts
 "use client";
 import { useState, useMemo } from "react";
 import { auth } from "@/app/api/firebase/config";
