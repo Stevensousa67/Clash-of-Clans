@@ -6,6 +6,7 @@ import classes from './navbar.module.css';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ModeToggle } from '@/components/ui/ThemeToggle';
+import { ProfileToggle } from '@/components/ui/user';
 
 export default function Navbar() {
     const baseUrl = `${process.env.NEXT_PUBLIC_AWS_S3_BASE_URL}svgs/`;
@@ -57,6 +58,7 @@ export default function Navbar() {
                     <NavbarLinks className="hidden md:flex gap-8 text-md" />
                     <div className="hidden md:block h-6 w-px bg-gray-400/50 flex-shrink-0" />
                     <ModeToggle />
+                    <ProfileToggle />
                     <button className="md:hidden text-foreground" onClick={() => (isOpen ? closeMenu() : setIsOpen(true))} aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen}>
                         {isOpen ? (
                             <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
