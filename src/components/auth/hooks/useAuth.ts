@@ -1,7 +1,8 @@
 "use client";
 import { useState, useMemo } from "react";
 import { auth } from "@/app/api/firebase/config";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 
 export function useAuth(isSignUp: boolean) {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ export function useAuth(isSignUp: boolean) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -47,25 +49,59 @@ export function useAuth(isSignUp: boolean) {
         await signInWithEmailAndPassword(auth, formData.email, formData.password);
       }
       return true;
-    } catch (error) {
-      setError(error instanceof Error ? mapFirebaseError(error.message) : "An error occurred");
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setError(mapFirebaseError(err.code));
+
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
       return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { formData, handleInputChange, passwordRequirements, passwordsMatch, handleAuthAction, isLoading, error };
+  const handleForgotPassword = async () => {
+    setIsLoading(true);
+    setError("");
+    setSuccess("");
+    try {
+      if (!formData.email) {
+        setError("Please enter your email");
+        return false;
+      }
+      await sendPasswordResetEmail(auth, formData.email);
+      setSuccess("A password reset link has been sent to your email.");
+      return true;
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setError(mapFirebaseError(err.code));
+      } else {
+        setError("An unexpected error occurred during password reset. Please try again.");
+      }
+      setSuccess("");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { formData, handleInputChange, passwordRequirements, passwordsMatch, handleAuthAction, handleForgotPassword, isLoading, error, success };
 }
 
 // Map Firebase errors to user-friendly messages
-function mapFirebaseError(message: string): string {
+function mapFirebaseError(errorCode: string): string {
   const errorMap: Record<string, string> = {
-    "auth/invalid-email": "Invalid email format",
-    "auth/weak-password": "Password is too weak",
-    "auth/email-already-in-use": "Email is already registered",
-    "auth/user-not-found": "No account found with this email",
-    "auth/wrong-password": "Incorrect password",
+    "auth/invalid-credential": "Invalid credentials. Please check your email and password.",
+    "auth/weak-password": "The password is too weak. It should be at least 6 characters.",
+    "auth/email-already-in-use": "This email address is already in use by another account.",
+    "auth/user-disabled": "This account has been disabled.",
+    "auth/too-many-requests": "Too many failed login attempts. Please try again later.",
+    "auth/network-request-failed": "Network error. Please check your internet connection.",
   };
-  return errorMap[message] || "An error occurred. Please try again.";
+  // Default message if the error code is not in the map
+  return errorMap[errorCode] || "An unexpected error occurred. Please try again.";
 }

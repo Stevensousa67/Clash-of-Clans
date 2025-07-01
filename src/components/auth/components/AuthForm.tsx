@@ -10,11 +10,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const baseUrl = `${process.env.NEXT_PUBLIC_AWS_S3_BASE_URL}`;
 
 interface AuthFormProps extends React.ComponentProps<"div"> {
-  formType?: "login" | "signup";
+  formType?: "login" | "signup" | "forgotPassword";
   title: string;
   subtitle: string;
   submitButtonText: string;
@@ -26,14 +27,35 @@ interface AuthFormProps extends React.ComponentProps<"div"> {
 export function AuthForm({ className, formType = "login", title, subtitle, submitButtonText, linkText, linkUrl, showForgotPassword = false, ...props }: AuthFormProps) {
   const wallpaper = `${baseUrl}wallpapers/CoC+Logo.jpeg`;
   const router = useRouter();
-  const { formData, handleInputChange, passwordRequirements, passwordsMatch, handleAuthAction, isLoading, error } = useAuth(formType === "signup");
+  const isSignUp = formType === "signup";
+  const isForgotPassword = formType === "forgotPassword";
+  const { formData, handleInputChange, passwordRequirements, passwordsMatch, handleAuthAction, handleForgotPassword, isLoading, error } = useAuth(isSignUp);
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
   const [showPasswordMatch, setShowPasswordMatch] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isForgotPassword) {
+      const result = await handleForgotPassword();
+      if (result) {
+        toast.success("A password reset link has been sent to your email.", {
+          position: "bottom-right",
+        });
+      } else {
+        toast.error(error, {
+          position: "bottom-right",
+        });
+      }
+      return;
+    }
     const success = await handleAuthAction();
-    if (success) router.push("/");
+    if (success) {
+      router.push("/");
+    } else if (error) {
+      toast.error(error, {
+        position: "bottom-right",
+      });
+    }
   };
 
   return (
@@ -50,20 +72,22 @@ export function AuthForm({ className, formType = "login", title, subtitle, submi
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" placeholder="archer@email.com" value={formData.email} onChange={handleInputChange} required />
               </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  {showForgotPassword && (
-                    <Link href="/forgot-password" className="ml-auto text-sm underline-offset-2 hover:underline">
-                      Forgot your password?
-                    </Link>
-                  )}
+              {!isForgotPassword && (
+                <div className="grid gap-3">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                    {showForgotPassword && (
+                      <Link href="/forgotPassword" className="ml-auto text-sm underline-offset-2 hover:underline">
+                        Forgot your password?
+                      </Link>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Input id="password" type="password" value={formData.password} onChange={handleInputChange} onFocus={() => formType === "signup" && setShowPasswordRequirements(true)} onBlur={() => formType === "signup" && setShowPasswordRequirements(false)} required />
+                    <Popup type="requirements" requirements={passwordRequirements} isOpen={showPasswordRequirements} />
+                  </div>
                 </div>
-                <div className="relative">
-                  <Input id="password" type="password" value={formData.password} onChange={handleInputChange} onFocus={() => formType === "signup" && setShowPasswordRequirements(true)} onBlur={() => formType === "signup" && setShowPasswordRequirements(false)} required />
-                  <Popup type="requirements" requirements={passwordRequirements} isOpen={showPasswordRequirements} />
-                </div>
-              </div>
+              )}
               {formType === "signup" && (
                 <div className="grid gap-3">
                   <Label htmlFor="confirm-password">Confirm Password</Label>
@@ -73,7 +97,6 @@ export function AuthForm({ className, formType = "login", title, subtitle, submi
                   </div>
                 </div>
               )}
-              {error && <p className="text-red-500 text-sm">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Loading..." : submitButtonText}
               </Button>
