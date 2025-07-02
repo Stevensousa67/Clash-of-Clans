@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
-import { auth } from "@/app/api/firebase/config";
+import { auth } from "@/firebase/client";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 
