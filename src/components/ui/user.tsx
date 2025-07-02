@@ -8,8 +8,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useCurrentUser } from "@/components/auth/hooks/useCurrentUser"
 
 export function ProfileToggle() {
-  const user = useCurrentUser()
+  const { user, loading } = useCurrentUser()
 
+  if (loading) {
+    return (
+      <Button variant="outline" size="icon" disabled>
+        <UserRound className="h-[1.2rem] w-[1.2rem] animate-pulse" />
+        <span className="sr-only">Loading User Profile</span>
+      </Button>
+    );
+  }
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
