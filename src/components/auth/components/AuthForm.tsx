@@ -97,7 +97,7 @@ export function AuthForm({ className, formType = "login", title, subtitle, submi
                   </div>
                 </div>
               )}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-1/3 mx-auto" disabled={isLoading}>
                 {isLoading ? "Loading..." : submitButtonText}
               </Button>
               <p className="text-center text-sm text-muted-foreground">
