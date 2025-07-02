@@ -1,16 +1,15 @@
 "use client"
 import * as React from "react"
 import Link from "next/link"
-import { auth } from "@/firebase/client"
 import { UserRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useCurrentUser } from "@/components/auth/hooks/useCurrentUser"
+import { useAuth } from "@/context/auth"
 
 export function ProfileToggle() {
-  const { user, loading } = useCurrentUser()
+  const { currentUser, isLoading, logout } = useAuth()
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Button variant="outline" size="icon" disabled>
         <UserRound className="h-[1.2rem] w-[1.2rem] animate-pulse" />
@@ -28,12 +27,12 @@ export function ProfileToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center">
-        {user ? (
+        {currentUser ? (
             <>
                 <DropdownMenuItem asChild>
                     <Link href="/account">Account Settings</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => auth.signOut()}>Sign Out</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Sign Out</DropdownMenuItem>
             </>
         ) : (
             <>

@@ -2,15 +2,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/auth/hooks/useAuth";
+import { useAuth } from "@/context/auth";
 import { Popup } from "@/components/auth/components/Popup";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { usePasswordValidation } from "@/components/auth/hooks/usePasswordValidation";
 
 const baseUrl = `${process.env.NEXT_PUBLIC_AWS_S3_BASE_URL}`;
 
@@ -26,35 +27,64 @@ interface AuthFormProps extends React.ComponentProps<"div"> {
 
 export function AuthForm({ className, formType = "login", title, subtitle, submitButtonText, linkText, linkUrl, showForgotPassword = false, ...props }: AuthFormProps) {
   const wallpaper = `${baseUrl}wallpapers/CoC+Logo.jpeg`;
+  const { 
+    loginWithEmail, 
+    signUpWithEmail, 
+    resetPassword, 
+    loginWithGoogle,
+    isLoading, 
+    error,
+    clearError
+  } = useAuth();
   const router = useRouter();
-  const isSignUp = formType === "signup";
-  const isForgotPassword = formType === "forgotPassword";
-  const { formData, handleInputChange, passwordRequirements, passwordsMatch, handleAuthAction, handleForgotPassword, isLoading, error } = useAuth(isSignUp);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const { passwordRequirements, passwordsMatch } = usePasswordValidation(password, confirmPassword);
+  
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
   const [showPasswordMatch, setShowPasswordMatch] = useState(false);
 
+  const isSignUp = formType === "signup";
+  const isForgotPassword = formType === "forgotPassword";
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        position: "bottom-right",
+        onDismiss: () => clearError(),
+      });
+    }
+  }, [error, clearError]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let success = false;
+
     if (isForgotPassword) {
-      const result = await handleForgotPassword();
-      if (result) {
+      success = await resetPassword(email);
+      if (success) {
         toast.success("A password reset link has been sent to your email.", {
-          position: "bottom-right",
-        });
-      } else {
-        toast.error(error, {
           position: "bottom-right",
         });
       }
       return;
     }
-    const success = await handleAuthAction();
+
+    if (isSignUp) {
+        if(password !== confirmPassword) {
+            toast.error("Passwords do not match.");
+            return;
+        }
+      success = await signUpWithEmail(email, password);
+    } else {
+      success = await loginWithEmail(email, password);
+    }
+
     if (success) {
       router.push("/");
-    } else if (error) {
-      toast.error(error, {
-        position: "bottom-right",
-      });
     }
   };
 
@@ -70,7 +100,7 @@ export function AuthForm({ className, formType = "login", title, subtitle, submi
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="archer@email.com" value={formData.email} onChange={handleInputChange} required />
+                <Input id="email" type="email" placeholder="archer@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
               {!isForgotPassword && (
                 <div className="grid gap-3">
@@ -83,16 +113,16 @@ export function AuthForm({ className, formType = "login", title, subtitle, submi
                     )}
                   </div>
                   <div className="relative">
-                    <Input id="password" type="password" value={formData.password} onChange={handleInputChange} onFocus={() => formType === "signup" && setShowPasswordRequirements(true)} onBlur={() => formType === "signup" && setShowPasswordRequirements(false)} required />
+                    <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} onFocus={() => isSignUp && setShowPasswordRequirements(true)} onBlur={() => isSignUp && setShowPasswordRequirements(false)} required={!isForgotPassword} />
                     <Popup type="requirements" requirements={passwordRequirements} isOpen={showPasswordRequirements} />
                   </div>
                 </div>
               )}
-              {formType === "signup" && (
+              {isSignUp && (
                 <div className="grid gap-3">
                   <Label htmlFor="confirm-password">Confirm Password</Label>
                   <div className="relative">
-                    <Input id="confirm-password" type="password" value={formData.confirmPassword} onChange={handleInputChange} onFocus={() => setShowPasswordMatch(true)} onBlur={() => setShowPasswordMatch(false)} required />
+                    <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} onFocus={() => setShowPasswordMatch(true)} onBlur={() => setShowPasswordMatch(false)} required={isSignUp} />
                     <Popup type="match" isMatch={passwordsMatch} isOpen={showPasswordMatch} />
                   </div>
                 </div>
@@ -100,6 +130,25 @@ export function AuthForm({ className, formType = "login", title, subtitle, submi
               <Button type="submit" className="w-1/3 mx-auto" disabled={isLoading}>
                 {isLoading ? "Loading..." : submitButtonText}
               </Button>
+
+              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+                <span className="bg-card text-muted-foreground relative z-10 px-2">Or continue with</span>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <Button variant="outline" type="button" className="w-full" onClick={() => toast.info("This feature is not implemented yet.")}>
+                  <Image src={`${baseUrl}svgs/Apple.svg`} alt="Apple logo" width={24} height={24} className="w-6 h-6 dark:invert" />
+                  <span className="sr-only">Login with Apple</span>
+                </Button>
+                <Button variant="outline" type="button" className="w-full" onClick={loginWithGoogle}>
+                  <Image src={`${baseUrl}svgs/Google.svg`} alt="Google logo" width={24} height={24} className="w-6 h-6" />
+                  <span className="sr-only">Login with Google</span>
+                </Button>
+                <Button variant="outline" type="button" className="w-full" onClick={() => toast.info("This feature is not implemented yet.")}>
+                  <Image src={`${baseUrl}svgs/Microsoft.svg`} alt="Meta logo" width={24} height={24} className="w-6 h-6" />
+                  <span className="sr-only">Login with Microsoft</span>
+                </Button>
+              </div>
+
               <p className="text-center text-sm text-muted-foreground">
                 {linkText}{" "}
                 <Link href={linkUrl} className="font-semibold text-primary hover:underline">

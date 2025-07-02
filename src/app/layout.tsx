@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/header/Navbar";
 import Footer from "@/components/footer/Footer";
 import "./globals.css";
+import { AuthProvider } from "@/context/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,15 +27,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gradient-to-b from-white via-white via-60% to-gray-300 dark:bg-gradient-to-b dark:from-black dark:via-black dark:via-60% dark:to-gray-800`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Navbar />
-          <main className="flex-grow flex flex-col max-w-5xl w-full" style={{ position: 'relative', left: '50vw', transform: 'translateX(-50%)' }}>
-            {children}
-          </main>
-          <Footer />
-          <Toaster />
-        </ThemeProvider>
-        <Analytics />
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Navbar />
+            <main className="flex-grow flex flex-col max-w-5xl w-full" style={{ position: 'relative', left: '50vw', transform: 'translateX(-50%)' }}>
+              {children}
+            </main>
+            <Footer />
+            <Toaster />
+          </ThemeProvider>
+          <Analytics />
+        </AuthProvider>
       </body>
     </html>
   );
